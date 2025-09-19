@@ -48,9 +48,9 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     async session({ session, token }) {
-      if (session.user && token.sub) {
+      if (session.user && token.discordId) {
         // Add custom user data to session
-        const customUser = await getUserByDiscordId(token.sub)
+        const customUser = await getUserByDiscordId(token.discordId as string)
         if (customUser) {
           session.user.id = customUser.id
           session.user.hasApiKey = !!customUser.pnw_api_key

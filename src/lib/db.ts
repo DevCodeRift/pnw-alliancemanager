@@ -1,9 +1,12 @@
 import { supabase, createServerSupabaseClient } from './supabase'
 import { User, WhitelistedAlliance, UserAlliance } from '@/types'
 
+// Create server client for operations that need elevated permissions
+const serverSupabase = createServerSupabaseClient()
+
 // User operations
 export const getUserByDiscordId = async (discordId: string): Promise<User | null> => {
-  const { data, error } = await supabase
+  const { data, error } = await serverSupabase
     .from('users')
     .select('*')
     .eq('discord_id', discordId)
@@ -19,7 +22,7 @@ export const createUser = async (userData: {
   discord_avatar?: string
   is_admin?: boolean
 }): Promise<User | null> => {
-  const { data, error } = await supabase
+  const { data, error } = await serverSupabase
     .from('users')
     .insert(userData)
     .select()
@@ -34,7 +37,7 @@ export const updateUserApiKey = async (
   apiKey: string,
   nationId?: number
 ): Promise<boolean> => {
-  const { error } = await supabase
+  const { error } = await serverSupabase
     .from('users')
     .update({
       pnw_api_key: apiKey,
@@ -49,7 +52,7 @@ export const updateUserAdminStatus = async (
   userId: string,
   isAdmin: boolean
 ): Promise<boolean> => {
-  const { error } = await supabase
+  const { error } = await serverSupabase
     .from('users')
     .update({ is_admin: isAdmin })
     .eq('id', userId)
@@ -59,7 +62,7 @@ export const updateUserAdminStatus = async (
 
 // Whitelisted alliances operations
 export const getWhitelistedAlliances = async (): Promise<WhitelistedAlliance[]> => {
-  const { data, error } = await supabase
+  const { data, error } = await serverSupabase
     .from('whitelisted_alliances')
     .select('*')
     .eq('is_active', true)
@@ -70,7 +73,7 @@ export const getWhitelistedAlliances = async (): Promise<WhitelistedAlliance[]> 
 }
 
 export const getAllianceBySlug = async (slug: string): Promise<WhitelistedAlliance | null> => {
-  const { data, error } = await supabase
+  const { data, error } = await serverSupabase
     .from('whitelisted_alliances')
     .select('*')
     .eq('slug', slug)
@@ -82,7 +85,7 @@ export const getAllianceBySlug = async (slug: string): Promise<WhitelistedAllian
 }
 
 export const getAllianceById = async (allianceId: number): Promise<WhitelistedAlliance | null> => {
-  const { data, error } = await supabase
+  const { data, error } = await serverSupabase
     .from('whitelisted_alliances')
     .select('*')
     .eq('alliance_id', allianceId)
@@ -116,7 +119,7 @@ export const addWhitelistedAlliance = async (
 
 // User alliances operations
 export const getUserAlliances = async (userId: string): Promise<UserAlliance[]> => {
-  const { data, error } = await supabase
+  const { data, error } = await serverSupabase
     .from('user_alliances')
     .select('*')
     .eq('user_id', userId)
@@ -130,7 +133,7 @@ export const addUserToAlliance = async (
   allianceId: number,
   role: 'member' | 'officer' | 'leader' = 'member'
 ): Promise<boolean> => {
-  const { error } = await supabase
+  const { error } = await serverSupabase
     .from('user_alliances')
     .insert({
       user_id: userId,
@@ -146,7 +149,7 @@ export const updateUserAllianceRole = async (
   allianceId: number,
   role: 'member' | 'officer' | 'leader'
 ): Promise<boolean> => {
-  const { error } = await supabase
+  const { error } = await serverSupabase
     .from('user_alliances')
     .update({ role })
     .eq('user_id', userId)
@@ -160,7 +163,7 @@ export const createApiKeyRequest = async (
   userId: string,
   apiKey: string
 ): Promise<string | null> => {
-  const { data, error } = await supabase
+  const { data, error } = await serverSupabase
     .from('api_key_requests')
     .insert({
       user_id: userId,
@@ -179,7 +182,7 @@ export const updateApiKeyRequestStatus = async (
   status: 'validated' | 'failed',
   validationData?: any
 ): Promise<boolean> => {
-  const { error } = await supabase
+  const { error } = await serverSupabase
     .from('api_key_requests')
     .update({
       status,
@@ -192,7 +195,7 @@ export const updateApiKeyRequestStatus = async (
 
 // Admin operations
 export const isUserAdmin = async (discordId: string): Promise<boolean> => {
-  const { data, error } = await supabase
+  const { data, error } = await serverSupabase
     .from('users')
     .select('is_admin')
     .eq('discord_id', discordId)
