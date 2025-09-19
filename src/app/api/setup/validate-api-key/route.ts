@@ -47,9 +47,6 @@ export async function POST(request: NextRequest) {
 
     const nation = validation.nation
 
-    // Debug: Log the nation data to see what we're getting
-    console.log('Nation data from PNW API:', JSON.stringify(nation, null, 2))
-
     // Update user with API key and nation ID
     const updateSuccess = await updateUserApiKey(
       session.user.id,

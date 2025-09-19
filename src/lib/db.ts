@@ -26,6 +26,17 @@ export const getUserByDiscordId = async (discordId: string): Promise<User | null
   return data as User
 }
 
+export const getUserById = async (userId: string): Promise<User | null> => {
+  const { data, error } = await serverSupabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .single()
+
+  if (error || !data) return null
+  return data as User
+}
+
 export const createUser = async (userData: {
   discord_id: string
   discord_username: string
