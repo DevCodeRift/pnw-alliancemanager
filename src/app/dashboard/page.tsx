@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { UserAlliance, WhitelistedAlliance } from '@/types'
 
@@ -19,7 +19,29 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null)
   const isMountedRef = useRef(true)
 
-  // Redirect if not authenticated
+  // Handle redirects in useEffect to avoid rendering during navigation
+  useEffect(() => {
+    if (status !== 'loading') {
+      if (!session) {
+        router.push('/auth/signin')
+        return
+      }
+      if (!session.user?.hasApiKey) {
+        router.push('/setup')
+        return
+      }
+      // Only fetch data if authenticated and has API key
+      fetchDashboardData()
+    }
+  }, [session, status, fetchDashboardData])
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
+  // Show loading state
   if (status === 'loading') {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -28,28 +50,16 @@ export default function Dashboard() {
     )
   }
 
-  if (!session) {
-    router.push('/auth/signin')
-    return null
+  // Show loading while redirecting
+  if (!session || !session.user?.hasApiKey) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-xl">Redirecting...</div>
+      </div>
+    )
   }
 
-  // Redirect to setup if no API key
-  if (!session.user?.hasApiKey) {
-    router.push('/setup')
-    return null
-  }
-
-  useEffect(() => {
-    fetchDashboardData()
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false
-    }
-  }, [])
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       if (!isMountedRef.current) return
       setLoading(true)
@@ -71,7 +81,7 @@ export default function Dashboard() {
         setLoading(false)
       }
     }
-  }
+  }, [])
 
   if (loading) {
     return (
