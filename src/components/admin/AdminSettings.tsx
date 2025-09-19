@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface AdminSetting {
   id: string
@@ -17,6 +17,7 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
   const [values, setValues] = useState<Record<string, string>>({})
+  const isMountedRef = useRef(true)
 
   useEffect(() => {
     loadSettings()
@@ -24,8 +25,11 @@ export default function AdminSettings() {
 
   const loadSettings = async () => {
     try {
+      if (!isMountedRef.current) return
       const response = await fetch('/api/admin/settings')
       const data = await response.json()
+
+      if (!isMountedRef.current) return
 
       if (data.success) {
         setSettings(data.data)
@@ -38,11 +42,14 @@ export default function AdminSettings() {
     } catch (error) {
       console.error('Error loading settings:', error)
     } finally {
-      setLoading(false)
+      if (isMountedRef.current) {
+        setLoading(false)
+      }
     }
   }
 
   const saveSetting = async (settingKey: string) => {
+    if (!isMountedRef.current) return
     setSaving(settingKey)
     try {
       const response = await fetch('/api/admin/settings', {
@@ -56,6 +63,8 @@ export default function AdminSettings() {
         }),
       })
 
+      if (!isMountedRef.current) return
+
       const data = await response.json()
 
       if (data.success) {
@@ -68,7 +77,9 @@ export default function AdminSettings() {
       console.error('Error saving setting:', error)
       alert('Error saving setting')
     } finally {
-      setSaving(null)
+      if (isMountedRef.current) {
+        setSaving(null)
+      }
     }
   }
 
@@ -92,6 +103,12 @@ export default function AdminSettings() {
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
   }
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   if (loading) {
     return (

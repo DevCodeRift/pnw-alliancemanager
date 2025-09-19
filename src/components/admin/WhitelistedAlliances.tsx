@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { WhitelistedAlliance } from '@/types'
 
 interface WhitelistedAlliancesProps {
@@ -11,12 +11,16 @@ export default function WhitelistedAlliances({ onRefresh }: WhitelistedAlliances
   const [alliances, setAlliances] = useState<WhitelistedAlliance[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const isMountedRef = useRef(true)
 
   const fetchAlliances = async () => {
     try {
+      if (!isMountedRef.current) return
       setLoading(true)
       const response = await fetch('/api/admin/alliances')
       const data = await response.json()
+
+      if (!isMountedRef.current) return
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to fetch alliances')
@@ -25,9 +29,12 @@ export default function WhitelistedAlliances({ onRefresh }: WhitelistedAlliances
       setAlliances(data.data || [])
       setError(null)
     } catch (err) {
+      if (!isMountedRef.current) return
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
-      setLoading(false)
+      if (isMountedRef.current) {
+        setLoading(false)
+      }
     }
   }
 
@@ -38,6 +45,12 @@ export default function WhitelistedAlliances({ onRefresh }: WhitelistedAlliances
   useEffect(() => {
     fetchAlliances()
   }, [onRefresh])
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
