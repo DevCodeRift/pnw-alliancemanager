@@ -6,6 +6,7 @@ export interface User {
   discord_avatar?: string;
   pnw_api_key?: string;
   pnw_nation_id?: number;
+  is_admin: boolean;
   created_at: string;
   updated_at: string;
 }

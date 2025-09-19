@@ -54,7 +54,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, account, user }) {
       if (account?.provider === 'discord' && user) {
         token.discordId = user.id
-        token.username = user.name
+        token.username = user.name || undefined
       }
       return token
     },
