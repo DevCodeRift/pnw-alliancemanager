@@ -64,13 +64,14 @@ export async function POST(request: NextRequest) {
     // If the nation is in an alliance, check if that alliance is whitelisted
     let allianceStatus = null
     if (nation.alliance_id) {
-      const whitelistedAlliance = await getAllianceById(nation.alliance_id)
+      const allianceId = typeof nation.alliance_id === 'string' ? parseInt(nation.alliance_id, 10) : nation.alliance_id
+      const whitelistedAlliance = await getAllianceById(allianceId)
 
       if (whitelistedAlliance) {
         // Add user to alliance with member role by default
         const allianceAdded = await addUserToAlliance(
           session.user.id,
-          nation.alliance_id,
+          allianceId,
           'member'
         )
 
