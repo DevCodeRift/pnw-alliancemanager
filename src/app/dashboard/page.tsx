@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { UserAlliance, WhitelistedAlliance } from '@/types'
 
@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const isMountedRef = useRef(true)
 
   // Redirect if not authenticated
   if (status === 'loading') {
@@ -42,11 +43,20 @@ export default function Dashboard() {
     fetchDashboardData()
   }, [])
 
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
   const fetchDashboardData = async () => {
     try {
+      if (!isMountedRef.current) return
       setLoading(true)
       // TODO: Implement API routes for dashboard data
       // For now, we'll use placeholder data
+
+      if (!isMountedRef.current) return
 
       setDashboardData({
         userAlliances: [],
@@ -54,9 +64,12 @@ export default function Dashboard() {
       })
       setError(null)
     } catch (err) {
+      if (!isMountedRef.current) return
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
-      setLoading(false)
+      if (isMountedRef.current) {
+        setLoading(false)
+      }
     }
   }
 
