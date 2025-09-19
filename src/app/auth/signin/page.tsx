@@ -1,7 +1,7 @@
 'use client'
 
 import { signIn, getProviders } from 'next-auth/react'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, Suspense, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 function SignInContent() {
@@ -9,13 +9,22 @@ function SignInContent() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/'
   const error = searchParams.get('error')
+  const isMountedRef = useRef(true)
 
   useEffect(() => {
     const getProvidersData = async () => {
       const providers = await getProviders()
-      setProviders(providers)
+      if (isMountedRef.current) {
+        setProviders(providers)
+      }
     }
     getProvidersData()
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
   }, [])
 
   const handleDiscordSignIn = () => {
