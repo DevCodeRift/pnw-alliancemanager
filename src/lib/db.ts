@@ -17,6 +17,7 @@ export const createUser = async (userData: {
   discord_id: string
   discord_username: string
   discord_avatar?: string
+  is_admin?: boolean
 }): Promise<User | null> => {
   const { data, error } = await supabase
     .from('users')
@@ -39,6 +40,18 @@ export const updateUserApiKey = async (
       pnw_api_key: apiKey,
       pnw_nation_id: nationId,
     })
+    .eq('id', userId)
+
+  return !error
+}
+
+export const updateUserAdminStatus = async (
+  userId: string,
+  isAdmin: boolean
+): Promise<boolean> => {
+  const { error } = await supabase
+    .from('users')
+    .update({ is_admin: isAdmin })
     .eq('id', userId)
 
   return !error

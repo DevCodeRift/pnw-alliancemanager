@@ -1,6 +1,6 @@
 import { NextAuthOptions } from 'next-auth'
 import DiscordProvider from 'next-auth/providers/discord'
-import { createUser, getUserByDiscordId } from './db'
+import { createUser, getUserByDiscordId, updateUserAdminStatus } from './db'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -21,13 +21,22 @@ export const authOptions: NextAuthOptions = {
           // Check if user exists in our custom users table
           let existingUser = await getUserByDiscordId(user.id)
 
+          // Check if user is an admin
+          const adminDiscordIds = process.env.ADMIN_DISCORD_IDS?.split(',').map(id => id.trim()) || []
+          const isAdmin = adminDiscordIds.includes(user.id)
+
           if (!existingUser) {
             // Create user in our custom table
             existingUser = await createUser({
               discord_id: user.id,
               discord_username: user.name || '',
               discord_avatar: user.image || '',
+              is_admin: isAdmin,
             })
+          } else if (existingUser.is_admin !== isAdmin) {
+            // Update admin status if it has changed
+            await updateUserAdminStatus(existingUser.id, isAdmin)
+            existingUser.is_admin = isAdmin
           }
 
           return !!existingUser
