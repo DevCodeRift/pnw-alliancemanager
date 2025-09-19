@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getWhitelistedAlliances, addWhitelistedAlliance, getAllianceById as getDbAllianceById } from '@/lib/db'
-import { getAllianceById, createSlugFromName } from '@/lib/pnw-api'
+import { getAllianceById as getPnwAllianceById, createSlugFromName } from '@/lib/pnw-api'
+import { getAdminSetting } from '@/lib/db'
 
 // GET - Get all whitelisted alliances
 export async function GET() {
@@ -57,8 +58,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get global API key for PNW operations
+    const globalApiKey = await getAdminSetting('global_pnw_api_key')
+    if (!globalApiKey) {
+      return NextResponse.json(
+        { error: 'Global PNW API key not configured. Please set it in admin settings.' },
+        { status: 400 }
+      )
+    }
+
     // Fetch alliance data from PNW API
-    const pnwAlliance = await getAllianceById(allianceId)
+    const pnwAlliance = await getPnwAllianceById(allianceId, globalApiKey)
     if (!pnwAlliance) {
       return NextResponse.json(
         { error: 'Alliance not found in Politics and War' },
