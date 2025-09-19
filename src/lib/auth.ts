@@ -19,14 +19,14 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === 'discord' && profile) {
         try {
           // Check if user exists in our custom users table
-          let existingUser = await getUserByDiscordId(profile.id as string)
+          let existingUser = await getUserByDiscordId(user.id)
 
           if (!existingUser) {
             // Create user in our custom table
             existingUser = await createUser({
-              discord_id: profile.id as string,
-              discord_username: profile.username as string,
-              discord_avatar: profile.avatar as string,
+              discord_id: user.id,
+              discord_username: user.name || '',
+              discord_avatar: user.image || '',
             })
           }
 
@@ -51,10 +51,10 @@ export const authOptions: NextAuthOptions = {
       }
       return session
     },
-    async jwt({ token, account, profile }) {
-      if (account?.provider === 'discord' && profile) {
-        token.discordId = profile.id
-        token.username = profile.username
+    async jwt({ token, account, user }) {
+      if (account?.provider === 'discord' && user) {
+        token.discordId = user.id
+        token.username = user.name
       }
       return token
     },
