@@ -42,7 +42,10 @@ export async function POST(request: NextRequest) {
 
     const { allianceId } = await request.json()
 
-    if (!allianceId || typeof allianceId !== 'number') {
+    // Convert to number if it's a string, validate it's a valid number
+    const numericAllianceId = typeof allianceId === 'string' ? parseInt(allianceId, 10) : allianceId
+
+    if (!numericAllianceId || typeof numericAllianceId !== 'number' || isNaN(numericAllianceId)) {
       return NextResponse.json(
         { error: 'Valid alliance ID is required' },
         { status: 400 }
@@ -50,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if alliance is already whitelisted
-    const existingAlliance = await getDbAllianceById(allianceId)
+    const existingAlliance = await getDbAllianceById(numericAllianceId)
     if (existingAlliance) {
       return NextResponse.json(
         { error: 'Alliance is already whitelisted' },
@@ -68,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch alliance data from PNW API
-    const pnwAlliance = await getPnwAllianceById(allianceId, globalApiKey)
+    const pnwAlliance = await getPnwAllianceById(numericAllianceId, globalApiKey)
     if (!pnwAlliance) {
       return NextResponse.json(
         { error: 'Alliance not found in Politics and War' },
