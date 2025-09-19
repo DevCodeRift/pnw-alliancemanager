@@ -1,6 +1,16 @@
 import { supabase, createServerSupabaseClient } from './supabase'
 import { User, WhitelistedAlliance, UserAlliance } from '@/types'
 
+interface AdminSetting {
+  id: string
+  setting_key: string
+  setting_value: string | null
+  description: string | null
+  updated_by_user_id: string | null
+  created_at: string
+  updated_at: string
+}
+
 // Create server client for operations that need elevated permissions
 const serverSupabase = createServerSupabaseClient()
 
@@ -154,6 +164,44 @@ export const updateUserAllianceRole = async (
     .update({ role })
     .eq('user_id', userId)
     .eq('alliance_id', allianceId)
+
+  return !error
+}
+
+// Admin settings operations
+export const getAdminSettings = async (): Promise<AdminSetting[]> => {
+  const { data, error } = await serverSupabase
+    .from('admin_settings')
+    .select('*')
+    .order('setting_key')
+
+  if (error || !data) return []
+  return data as AdminSetting[]
+}
+
+export const getAdminSetting = async (settingKey: string): Promise<string | null> => {
+  const { data, error } = await serverSupabase
+    .from('admin_settings')
+    .select('setting_value')
+    .eq('setting_key', settingKey)
+    .single()
+
+  if (error || !data) return null
+  return data.setting_value
+}
+
+export const updateAdminSetting = async (
+  settingKey: string,
+  settingValue: string,
+  updatedByUserId: string
+): Promise<boolean> => {
+  const { error } = await serverSupabase
+    .from('admin_settings')
+    .update({
+      setting_value: settingValue,
+      updated_by_user_id: updatedByUserId,
+    })
+    .eq('setting_key', settingKey)
 
   return !error
 }

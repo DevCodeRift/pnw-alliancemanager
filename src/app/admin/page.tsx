@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { PNWAlliance } from '@/types'
 import AllianceSearch from '@/components/admin/AllianceSearch'
 import WhitelistedAlliances from '@/components/admin/WhitelistedAlliances'
+import AdminSettings from '@/components/admin/AdminSettings'
 
 export default function AdminPanel() {
   const { data: session, status } = useSession()
@@ -127,51 +128,56 @@ export default function AdminPanel() {
           </div>
         )}
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Add New Alliance */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Add Alliance to Whitelist</h2>
+        <div className="space-y-8">
+          {/* Admin Settings */}
+          <AdminSettings />
 
-            <AllianceSearch onSelectAlliance={handleSelectAlliance} />
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Add New Alliance */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Add Alliance to Whitelist</h2>
 
-            {selectedAlliance && (
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="font-semibold text-blue-900 mb-2">Selected Alliance:</h3>
-                <div className="space-y-1 text-sm">
-                  <p><strong>Name:</strong> {selectedAlliance.name}</p>
-                  {selectedAlliance.acronym && (
-                    <p><strong>Acronym:</strong> {selectedAlliance.acronym}</p>
-                  )}
-                  <p><strong>ID:</strong> {selectedAlliance.id}</p>
-                  <p><strong>Rank:</strong> #{selectedAlliance.rank}</p>
-                  <p><strong>Score:</strong> {selectedAlliance.score?.toLocaleString()}</p>
-                  {selectedAlliance.color && (
-                    <p><strong>Color:</strong> {selectedAlliance.color}</p>
-                  )}
+              <AllianceSearch onSelectAlliance={handleSelectAlliance} />
+
+              {selectedAlliance && (
+                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h3 className="font-semibold text-blue-900 mb-2">Selected Alliance:</h3>
+                  <div className="space-y-1 text-sm">
+                    <p><strong>Name:</strong> {selectedAlliance.name}</p>
+                    {selectedAlliance.acronym && (
+                      <p><strong>Acronym:</strong> {selectedAlliance.acronym}</p>
+                    )}
+                    <p><strong>ID:</strong> {selectedAlliance.id}</p>
+                    <p><strong>Rank:</strong> #{selectedAlliance.rank}</p>
+                    <p><strong>Score:</strong> {selectedAlliance.score?.toLocaleString()}</p>
+                    {selectedAlliance.color && (
+                      <p><strong>Color:</strong> {selectedAlliance.color}</p>
+                    )}
+                  </div>
+
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      onClick={handleAddAlliance}
+                      disabled={loading}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
+                      {loading ? 'Adding...' : 'Add to Whitelist'}
+                    </button>
+                    <button
+                      onClick={() => setSelectedAlliance(null)}
+                      className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
+              )}
+            </div>
 
-                <div className="mt-4 flex gap-2">
-                  <button
-                    onClick={handleAddAlliance}
-                    disabled={loading}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                  >
-                    {loading ? 'Adding...' : 'Add to Whitelist'}
-                  </button>
-                  <button
-                    onClick={() => setSelectedAlliance(null)}
-                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Current Whitelisted Alliances */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <WhitelistedAlliances onRefresh={refreshTrigger} />
+            {/* Current Whitelisted Alliances */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <WhitelistedAlliances onRefresh={refreshTrigger} />
+            </div>
           </div>
         </div>
       </div>
