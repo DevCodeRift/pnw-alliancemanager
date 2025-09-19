@@ -1,16 +1,8 @@
 import { NextAuthOptions } from 'next-auth'
 import DiscordProvider from 'next-auth/providers/discord'
-import { SupabaseAdapter } from '@auth/supabase-adapter'
-import { createServerSupabaseClient } from './supabase'
 import { createUser, getUserByDiscordId } from './db'
 
-const supabaseClient = createServerSupabaseClient()
-
 export const authOptions: NextAuthOptions = {
-  adapter: SupabaseAdapter({
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    secret: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  }),
   providers: [
     DiscordProvider({
       clientId: process.env.DISCORD_CLIENT_ID!,
