@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { PNWAlliance } from '@/types'
 
 interface AllianceSearchProps {
@@ -12,9 +12,16 @@ export default function AllianceSearch({ onSelectAlliance }: AllianceSearchProps
   const [searchResults, setSearchResults] = useState<PNWAlliance[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const isMountedRef = useRef(true)
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return
+    if (!searchQuery.trim() || !isMountedRef.current) return
 
     setLoading(true)
     setError(null)
@@ -28,16 +35,21 @@ export default function AllianceSearch({ onSelectAlliance }: AllianceSearchProps
       const response = await fetch(url)
       const data = await response.json()
 
+      if (!isMountedRef.current) return
+
       if (!response.ok) {
         throw new Error(data.error || 'Failed to search alliances')
       }
 
       setSearchResults(data.data || [])
     } catch (err) {
+      if (!isMountedRef.current) return
       setError(err instanceof Error ? err.message : 'An error occurred')
       setSearchResults([])
     } finally {
-      setLoading(false)
+      if (isMountedRef.current) {
+        setLoading(false)
+      }
     }
   }
 

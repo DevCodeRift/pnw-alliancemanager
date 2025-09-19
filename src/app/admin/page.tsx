@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { PNWAlliance } from '@/types'
 import AllianceSearch from '@/components/admin/AllianceSearch'
@@ -15,6 +15,13 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const isMountedRef = useRef(true)
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   // Redirect if not admin
   if (status === 'loading') {
@@ -58,7 +65,7 @@ export default function AdminPanel() {
   }
 
   const handleAddAlliance = async () => {
-    if (!selectedAlliance) return
+    if (!selectedAlliance || !isMountedRef.current) return
 
     setLoading(true)
     setMessage(null)
@@ -76,6 +83,8 @@ export default function AdminPanel() {
 
       const data = await response.json()
 
+      if (!isMountedRef.current) return
+
       if (!response.ok) {
         throw new Error(data.error || 'Failed to add alliance')
       }
@@ -87,12 +96,15 @@ export default function AdminPanel() {
       setSelectedAlliance(null)
       setRefreshTrigger(prev => prev + 1)
     } catch (error) {
+      if (!isMountedRef.current) return
       setMessage({
         type: 'error',
         text: error instanceof Error ? error.message : 'An error occurred',
       })
     } finally {
-      setLoading(false)
+      if (isMountedRef.current) {
+        setLoading(false)
+      }
     }
   }
 
