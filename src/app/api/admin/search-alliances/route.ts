@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { searchAlliances, getAllianceById } from '@/lib/pnw-api'
+import { PNWAlliance } from '@/types'
 
 // GET - Search alliances from PNW API
 export async function GET(request: NextRequest) {
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    let alliances = []
+    let alliances: PNWAlliance[] = []
 
     if (allianceId) {
       // Search by specific alliance ID

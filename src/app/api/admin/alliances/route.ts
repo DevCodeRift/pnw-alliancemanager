@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     const newAlliance = await addWhitelistedAlliance({
       alliance_id: pnwAlliance.id,
       alliance_name: pnwAlliance.name,
-      alliance_acronym: pnwAlliance.acronym || null,
+      alliance_acronym: pnwAlliance.acronym || undefined,
       slug: slug,
       added_by_user_id: session.user.id,
     })

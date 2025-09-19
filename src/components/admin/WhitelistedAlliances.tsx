@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { WhitelistedAlliance } from '@/types'
 
 interface WhitelistedAlliancesProps {
-  onRefresh: () => void
+  onRefresh: number
 }
 
 export default function WhitelistedAlliances({ onRefresh }: WhitelistedAlliancesProps) {

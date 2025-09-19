@@ -4,13 +4,13 @@ import { getAllianceById } from '@/lib/pnw-api'
 import AlliancePage from '@/components/alliance/AlliancePage'
 
 interface AlliancePageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export default async function AllianceSubdomainPage({ params }: AlliancePageProps) {
-  const { slug } = params
+  const { slug } = await params
 
   // Get alliance data from database
   const allianceData = await getAllianceBySlug(slug)
@@ -37,7 +37,7 @@ export default async function AllianceSubdomainPage({ params }: AlliancePageProp
 
 // Generate metadata for the alliance page
 export async function generateMetadata({ params }: AlliancePageProps) {
-  const { slug } = params
+  const { slug } = await params
   const alliance = await getAllianceBySlug(slug)
 
   if (!alliance) {
