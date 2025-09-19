@@ -1,0 +1,44 @@
+{
+  "name": "pnw-alliancemanager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "vercel --prod",
+    "preview": "vercel"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DevCodeRift/pnw-alliancemanager.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DevCodeRift/pnw-alliancemanager/issues"
+  },
+  "homepage": "https://github.com/DevCodeRift/pnw-alliancemanager#readme",
+  "dependencies": {
+    "@auth/supabase-adapter": "^1.10.0",
+    "@supabase/supabase-js": "^2.57.4",
+    "next": "^15.5.3",
+    "next-auth": "^4.24.11",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.5.2",
+    "@types/react": "19.1.13",
+    "typescript": "5.9.2"
+  }
+}
